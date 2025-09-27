@@ -1,0 +1,3 @@
+[submodule "submodules/jsxrx"]
+	path = submodules/jsxrx
+	url = git@github.com:leandrohsilveira/jsxrx.git
