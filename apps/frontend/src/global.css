@@ -1,0 +1,105 @@
+@import "tailwindcss";
+
+@theme {
+  --color-foreground-dark: var(--color-slate-800);
+  --color-foreground-light: var(--color-gray-50);
+
+  --color-background: var(--color-foreground-light);
+  --color-foreground: var(--color-foreground-dark);
+
+  --color-primary-50: var(--color-rose-50);
+  --color-primary-100: var(--color-rose-100);
+  --color-primary-200: var(--color-rose-200);
+  --color-primary-300: var(--color-rose-300);
+  --color-primary-400: var(--color-rose-400);
+  --color-primary-500: var(--color-rose-500);
+  --color-primary-600: var(--color-rose-600);
+  --color-primary-700: var(--color-rose-700);
+  --color-primary-800: var(--color-rose-800);
+  --color-primary-900: var(--color-rose-900);
+  --color-primary-950: var(--color-rose-950);
+
+  --color-primary-50-fg: var(--color-foreground-dark);
+  --color-primary-100-fg: var(--color-foreground-dark);
+  --color-primary-200-fg: var(--color-foreground-dark);
+  --color-primary-300-fg: var(--color-foreground-dark);
+  --color-primary-400-fg: var(--color-foreground-dark);
+  --color-primary-500-fg: var(--color-foreground-light);
+  --color-primary-600-fg: var(--color-foreground-light);
+  --color-primary-700-fg: var(--color-foreground-light);
+  --color-primary-800-fg: var(--color-foreground-light);
+  --color-primary-900-fg: var(--color-foreground-light);
+  --color-primary-950-fg: var(--color-foreground-light);
+
+  --color-accent-50: var(--color-indigo-50);
+  --color-accent-100: var(--color-indigo-100);
+  --color-accent-200: var(--color-indigo-200);
+  --color-accent-300: var(--color-indigo-300);
+  --color-accent-400: var(--color-indigo-400);
+  --color-accent-500: var(--color-indigo-500);
+  --color-accent-600: var(--color-indigo-600);
+  --color-accent-700: var(--color-indigo-700);
+  --color-accent-800: var(--color-indigo-800);
+  --color-accent-900: var(--color-indigo-900);
+  --color-accent-950: var(--color-indigo-950);
+
+  --color-accent-50-fg: var(--color-foreground-dark);
+  --color-accent-100-fg: var(--color-foreground-dark);
+  --color-accent-200-fg: var(--color-foreground-dark);
+  --color-accent-300-fg: var(--color-foreground-dark);
+  --color-accent-400-fg: var(--color-foreground-dark);
+  --color-accent-500-fg: var(--color-foreground-light);
+  --color-accent-600-fg: var(--color-foreground-light);
+  --color-accent-700-fg: var(--color-foreground-light);
+  --color-accent-800-fg: var(--color-foreground-light);
+  --color-accent-900-fg: var(--color-foreground-light);
+  --color-accent-950-fg: var(--color-foreground-light);
+
+  --color-neutral-50: var(--color-slate-50);
+  --color-neutral-100: var(--color-slate-100);
+  --color-neutral-200: var(--color-slate-200);
+  --color-neutral-300: var(--color-slate-300);
+  --color-neutral-400: var(--color-slate-400);
+  --color-neutral-500: var(--color-slate-500);
+  --color-neutral-600: var(--color-slate-600);
+  --color-neutral-700: var(--color-slate-700);
+  --color-neutral-800: var(--color-slate-800);
+  --color-neutral-900: var(--color-slate-900);
+  --color-neutral-950: var(--color-slate-950);
+
+  --color-neutral-50-fg: var(--color-foreground-dark);
+  --color-neutral-100-fg: var(--color-foreground-dark);
+  --color-neutral-200-fg: var(--color-foreground-dark);
+  --color-neutral-300-fg: var(--color-foreground-dark);
+  --color-neutral-400-fg: var(--color-foreground-dark);
+  --color-neutral-500-fg: var(--color-foreground-light);
+  --color-neutral-600-fg: var(--color-foreground-light);
+  --color-neutral-700-fg: var(--color-foreground-light);
+  --color-neutral-800-fg: var(--color-foreground-light);
+  --color-neutral-900-fg: var(--color-foreground-light);
+  --color-neutral-950-fg: var(--color-foreground-light);
+
+  --color-error: var(--color-red-500);
+  --color-error-fg: var(--color-foreground-light);
+}
+
+button,
+input,
+input:focus,
+input:focus-visible,
+input:focus-within {
+  outline: none;
+  border: none;
+}
+
+h1 {
+  @apply text-5xl font-bold;
+}
+
+h2 {
+  @apply text-3xl font-bold;
+}
+
+h3 {
+  @apply text-2xl font-bold;
+}

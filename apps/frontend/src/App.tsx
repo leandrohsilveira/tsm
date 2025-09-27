@@ -1,4 +1,6 @@
 import { component, state } from "@jsxrx/core"
+import Button from "./components/ui/Button.js"
+import Login from "./components/auth/Login.js"
 
 export default component({
   name: "App",
@@ -17,17 +19,17 @@ export default component({
   },
   render({ count, increase, decrease }) {
     return (
-      <>
+      <Login>
         <div>Count is {count}</div>
-        <div>
-          <button type="button" onClick={increase}>
+        <div className="flex gap-1">
+          <Button type="button" onClick={increase}>
             Increase
-          </button>
-          <button type="button" onClick={decrease}>
+          </Button>
+          <Button type="button" onClick={decrease}>
             Decrease
-          </button>
+          </Button>
         </div>
-      </>
+      </Login>
     )
   },
 })

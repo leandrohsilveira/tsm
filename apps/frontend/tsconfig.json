@@ -6,7 +6,13 @@
   "compilerOptions": {
     "outDir": "./dist",
     "jsx": "react-jsx",
-    "jsxImportSource": "@jsxrx/core"
+    "jsxImportSource": "@jsxrx/core",
+    "baseUrl": ".",
+    "paths": {
+      "@/*": [
+        "src/*"
+      ]
+    }
   },
   "include": [
     "./src/**/*.jsx",
