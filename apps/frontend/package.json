@@ -9,7 +9,8 @@
   },
   "dependencies": {
     "@jsxrx/core": "*",
-    "@jsxrx/vite-plugin": "*"
+    "@jsxrx/vite-plugin": "*",
+    "rxjs": "^7.8.2"
   },
   "author": "",
   "license": "ISC",
