@@ -14,7 +14,8 @@ export default component({
     return (
       <button
         className={cn(
-          "px-3 py-1 rounded-md cursor-pointer disabled:cursor-not-allowed",
+          "flex flex-row justify-center gap-2 h-form-el-h py-form-el-py px-form-el-px",
+          "px-3 py-1 rounded-form-el cursor-pointer disabled:cursor-not-allowed",
           "focus:not-disabled:ring-2 focus-visible:not-disabled:ring-2 focus-within:not-disabled:outline-2",
           "transition-all duration-300 ease-in-out",
           {

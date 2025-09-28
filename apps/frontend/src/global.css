@@ -81,6 +81,12 @@
 
   --color-error: var(--color-red-500);
   --color-error-fg: var(--color-foreground-light);
+
+  --spacing-form-el-h: calc(var(--spacing) * 12);
+  --spacing-form-el-py: calc(var(--spacing) * 3);
+  --spacing-form-el-px: calc(var(--spacing) * 4);
+
+  --radius-form-el: var(--radius-lg);
 }
 
 button,
