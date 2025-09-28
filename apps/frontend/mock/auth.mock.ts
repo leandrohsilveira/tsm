@@ -23,8 +23,9 @@ function createUser(data: Omit<User, "id">): User {
 
 export default defineMock([
   {
-    url: "/login",
+    url: "/api/login",
     method: "POST",
+    delay: [100, 2000],
     response(req, res) {
       const { username, password } = req.body
       const user = users.find(

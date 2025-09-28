@@ -8,6 +8,7 @@
     "dev": "vite dev"
   },
   "dependencies": {
+    "@jsxrx/api": "*",
     "@jsxrx/core": "*",
     "clsx": "^2.1.1",
     "rxjs": "^7.8.2",
