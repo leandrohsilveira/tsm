@@ -1,4 +1,4 @@
-import { render } from "@jsxrx/core"
+import { createRoot } from "@jsxrx/core/dom"
 import App from "./App.jsx"
 
-await render(<App />, document.querySelector("[root]")).subscribe()
+createRoot(document.querySelector("[root]")).mount(<App />)

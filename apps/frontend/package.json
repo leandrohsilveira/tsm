@@ -21,6 +21,7 @@
   "devDependencies": {
     "@jsxrx/vite-plugin": "*",
     "@tailwindcss/vite": "^4.1.13",
+    "typescript": "^5.9.3",
     "vite": "^7.1.7",
     "vite-plugin-mock-dev-server": "^2.0.1"
   }
