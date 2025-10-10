@@ -4,7 +4,7 @@ import { apiClient } from "../client.js"
 
 export const loginEndpoint = apiClient.createEndpoint({
   method: "POST",
-  path: "/login",
+  path: "/auth/login",
   requestBodyParser: jsonRequestBody<LoginPayload>(),
   responseBodyParser: noResponseBody(),
   requestSetup(body: LoginPayload) {

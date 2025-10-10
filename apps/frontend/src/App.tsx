@@ -1,28 +1,47 @@
-import { state } from "@jsxrx/core"
+import { Input, Suspense } from "@jsxrx/core"
+import { filter, map, Observable } from "rxjs"
 import Login from "./components/auth/Login.js"
 import Button from "./components/ui/Button.js"
+import { provideAuthContext } from "./contexts/auth/login.js"
+import { UserData } from "./interfaces/user/user.js"
+import Splashscreen from "./components/ui/Splashscreen.js"
 
-export default function App() {
-  const count = state(0)
-  function increase() {
-    count.set(count.value + 1)
-  }
+export default function App($: Observable<object>) {
+  const input$ = Input.from($)
 
-  function decrease() {
-    count.set(count.value - 1)
-  }
+  const authContext = provideAuthContext(input$.context)
+
+  const userInfo$ = authContext.state$.pipe(
+    filter(data => data !== null),
+    map(data => data.user),
+  )
+
+  const email$ = userInfo$.pipe(map(user => user.email))
+  const fullName$ = userInfo$.pipe(map(fullName))
 
   return (
-    <Login>
-      <div>Count is {count}</div>
-      <div className="flex gap-1">
-        <Button type="button" onClick={increase}>
-          Increase
+    <Suspense fallback={<Splashscreen />}>
+      <Login>
+        <Suspense fallback="Loading authentication...">
+          <h4>Authenticated user</h4>
+          <div>Email: {email$}</div>
+          {fullName$.pipe(
+            map(name => (name ? <div>Full name: {name}</div> : null)),
+          )}
+        </Suspense>
+        <Button
+          disabled={authContext.pending$}
+          onClick={authContext.reloadUserInfo}
+        >
+          Reload user data
         </Button>
-        <Button type="button" onClick={decrease}>
-          Decrease
-        </Button>
-      </div>
-    </Login>
+      </Login>
+    </Suspense>
   )
+}
+
+function fullName(info: UserData) {
+  if (info.firstName || info.lastName)
+    return [info.firstName, info.lastName].filter(part => !!part).join("")
+  return null
 }

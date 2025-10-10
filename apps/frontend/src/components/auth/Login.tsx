@@ -1,28 +1,33 @@
 import { loginEndpoint } from "@/api/auth/login.js"
-import { Props, PropsWithChildren } from "@jsxrx/core"
-import { map, Observable, of } from "rxjs"
+import { emitter, Input, pending, PropsWithChildren } from "@jsxrx/core"
+import { map, Observable } from "rxjs"
 import Button from "../ui/Button.js"
 import FormField from "../ui/FormField.js"
+import { AuthLoginContext } from "@/contexts/auth/login.js"
 
 type LoginProps = PropsWithChildren
 
-export default function Login(input$: Observable<LoginProps>) {
-  const { children } = Props.take(input$)
+export default function Login($: Observable<LoginProps>) {
+  const input$ = Input.from($)
 
-  const loginMutation = loginEndpoint.mutation()
+  const { children } = input$.take()
 
-  const isLoggedIn$ = of(false)
-  const isLoggingIn$ = loginMutation.state$.pipe(
-    map(({ state }) => state === "pending"),
-  )
+  const loginAction = loginEndpoint.action()
 
-  function handleSubmit(e: JsxRx.FormEvent<HTMLFormElement>) {
+  const authContext$ = input$.context.require(AuthLoginContext)
+  const authReloadEmitter$ = emitter(authContext$.pipe(map(ctx => ctx.reload)))
+
+  const isLoggedIn$ = authContext$.pipe(map(context => context.isLoggedIn))
+  const isLoggingIn$ = pending(loginAction)
+
+  async function handleSubmit(e: JsxRx.FormEvent<HTMLFormElement>) {
     e.preventDefault()
     const formData = new FormData(e.target as HTMLFormElement)
-    loginMutation.mutate({
+    await loginAction.perform({
       username: formData.get("username") as string,
       password: formData.get("password") as string,
     })
+    await authReloadEmitter$.emit()
   }
 
   return isLoggedIn$.pipe(
