@@ -1,9 +1,10 @@
 import { tw } from "@/utils/tw.js"
-import { Props, PropsWithChildren, variants } from "@jsxrx/core"
+import { Props, PropsWithChildren, Ref, variants } from "@jsxrx/core"
 import { map, Observable } from "rxjs"
 
 type ButtonProps = PropsWithChildren<
   JsxRx.ButtonHTMLAttributes<HTMLButtonElement> & {
+    ref?: Ref<HTMLButtonElement>
     color?: "accent" | "neutral" | "danger"
     type?: "button" | "submit"
   }
@@ -11,8 +12,9 @@ type ButtonProps = PropsWithChildren<
 
 export default function Button(input$: Observable<ButtonProps>) {
   return Props.spread(input$, { color: "neutral", type: "button" }).pipe(
-    map(({ className, children, color, type, ...props }) => (
+    map(({ ref, className, children, color, type, ...props }) => (
       <button
+        ref={ref}
         className={tw(
           "flex flex-row justify-center gap-2 h-form-el-h py-form-el-py px-form-el-px",
           "px-3 py-1 rounded-form-el cursor-pointer disabled:cursor-not-allowed",
