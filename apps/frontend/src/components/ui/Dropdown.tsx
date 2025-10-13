@@ -3,61 +3,64 @@ import {
   fromRef,
   Input,
   PropsWithChildren,
+  ref,
   Ref,
   state,
 } from "@jsxrx/core"
+import { fromRefEvent } from "@jsxrx/core/dom"
 import {
   debounceTime,
   distinctUntilChanged,
   filter,
-  fromEvent,
   map,
   Observable,
   startWith,
-  switchMap,
-  takeUntil,
+  withLatestFrom,
 } from "rxjs"
 
+type DropdownPosition =
+  | "bottom-left"
+  | "bottom-right"
+  | "top-left"
+  | "top-right"
 type DropdownContainerProps = PropsWithChildren<{
   triggerRef: Ref<HTMLElement>
   trigger?: "click" | "hover"
-  position?: "bottom-left" | "bottom-right" | "top-left" | "top-right"
+  position?: DropdownPosition
   minHeight?: number
   minWidth?: number
+  className?: string
 }>
 
 export default function DropdownContainer(
   $: Observable<DropdownContainerProps>,
 ) {
   const input$ = Input.from($)
-  const { children, trigger, triggerRef, position, minHeight, minWidth } =
-    input$.take({
-      trigger: "click",
-      position: "bottom-left",
-      minHeight: 200,
-      minWidth: 250,
-    })
+  const {
+    children,
+    className,
+    trigger,
+    triggerRef,
+    position,
+    minHeight,
+    minWidth,
+  } = input$.take({
+    trigger: "click",
+    position: "bottom-left",
+    minHeight: 200,
+    minWidth: 250,
+  })
 
+  const dropdownRef = ref(HTMLDivElement)
   const open$ = state(false)
 
   input$.observe(
-    combine({
-      trigger,
-      ref: fromRef(triggerRef),
-    })
-      .pipe(
-        filter(input => input.ref !== null),
-        switchMap(input => fromEvent(input.ref!, input.trigger)),
-      )
-      .subscribe(() => {
-        open$.set(!open$.value)
-      }),
+    fromRefEvent(triggerRef, trigger).subscribe(() => {
+      open$.set(!open$.value)
+    }),
   )
 
-  const boundaries$ = open$.pipe(
-    filter(open => open),
-    takeUntil(open$.pipe(filter(open => !open))),
-    switchMap(() => fromEvent(window, "resize")),
+  const boundaries$ = fromRefEvent(window, "resize", open$).pipe(
     map(() => getBoundaries()),
     debounceTime(300),
     startWith(getBoundaries()),
@@ -68,13 +71,36 @@ export default function DropdownContainer(
     ),
   )
 
-  const scrollTop$ = open$.pipe(
-    distinctUntilChanged(),
-    takeUntil(open$.pipe(filter(open => !open))),
-    switchMap(() => fromEvent(window, "scroll")),
+  const scrollTop$ = fromRefEvent(window, "scroll", open$).pipe(
     map(() => window.scrollY),
     debounceTime(10),
+    distinctUntilChanged(),
     startWith(window.scrollY),
+  )
+
+  input$.observe(
+    fromRefEvent(window, "click", open$)
+      .pipe(
+        withLatestFrom(
+          fromRef(dropdownRef),
+          fromRef(triggerRef),
+          (event, dropdownRef, triggerRef) => ({
+            dropdownRef,
+            triggerRef,
+            event,
+          }),
+        ),
+        filter(
+          ({ event, dropdownRef, triggerRef }) =>
+            dropdownRef !== null &&
+            event.target !== null &&
+            event.target !== dropdownRef &&
+            !dropdownRef.contains(event.target as Node) &&
+            event.target !== triggerRef &&
+            !triggerRef?.contains(event.target as Node),
+        ),
+      )
+      .subscribe(() => open$.set(false)),
   )
 
   const dropdownStyle$ = combine({
@@ -84,68 +110,87 @@ export default function DropdownContainer(
     minHeight,
     minWidth,
     scrollTop: scrollTop$,
-  }).pipe(
-    map(({ position, ref, boundaries, minHeight, minWidth }) => {
-      if (!ref) return null
-
-      const isTopPosition = position === "top-left" || position === "top-right"
-      const isBottomPosition =
-        position === "bottom-left" || position === "bottom-right"
-      const isLeftAligned =
-        position === "bottom-left" || position === "top-left"
-      const isRightAligned =
-        position === "bottom-right" || position === "top-right"
-
-      const { top, bottom, left, right } = ref.getBoundingClientRect()
-
-      // bottom-left defaults
-      const bottomRoom = Math.abs(bottom - boundaries.bottom)
-      const topRoom = Math.abs(top - boundaries.top)
-      const leftRoom = Math.abs(right - boundaries.left)
-      const rightRoom = Math.abs(left - boundaries.right)
-      let dropdownLeft: number | undefined = left
-      let dropdownRight: number | undefined = undefined
-      let dropdownTop: number | undefined = bottom
-      let dropdownBottom: number | undefined = undefined
-      let maxWidth = rightRoom
-      let maxHeight = bottomRoom
-
-      if (
-        isTopPosition ||
-        (isBottomPosition && bottomRoom < minHeight && topRoom > bottomRoom)
-      ) {
-        dropdownTop = undefined
-        dropdownBottom = top
-        maxHeight = topRoom
-      }
-
-      if (
-        isRightAligned ||
-        (isLeftAligned && maxWidth < minWidth && leftRoom > rightRoom)
-      ) {
-        dropdownLeft = undefined
-        dropdownRight = right
-        maxWidth = leftRoom
-      }
-
-      return {
-        position: "fixed",
-        top: dropdownTop,
-        bottom: dropdownBottom,
-        left: dropdownLeft,
-        right: dropdownRight,
-        maxWidth,
-        maxHeight,
-      }
-    }),
-  )
+  }).pipe(map(getDropdownContainerStyles))
 
   return open$.pipe(
     map(open => {
       if (!open) return null
-      return <div style={dropdownStyle$}>{children}</div>
+      return (
+        <div
+          className={className}
+          role="listbox"
+          ref={dropdownRef}
+          style={dropdownStyle$}
+        >
+          {children}
+        </div>
+      )
     }),
   )
+}
+
+function getDropdownContainerStyles({
+  position,
+  ref,
+  boundaries,
+  minHeight,
+  minWidth,
+}: {
+  position: DropdownPosition
+  ref: HTMLElement | null
+  boundaries: { top: number; left: number; right: number; bottom: number }
+  minHeight: number
+  minWidth: number
+}) {
+  if (!ref) return null
+
+  const isTopPosition = position === "top-left" || position === "top-right"
+  const isBottomPosition =
+    position === "bottom-left" || position === "bottom-right"
+  const isLeftAligned = position === "bottom-left" || position === "top-left"
+  const isRightAligned = position === "bottom-right" || position === "top-right"
+
+  const { top, bottom, left, right } = ref.getBoundingClientRect()
+
+  // bottom-left defaults
+  const bottomRoom = Math.abs(bottom - boundaries.bottom)
+  const topRoom = Math.abs(top - boundaries.top)
+  const leftRoom = Math.abs(right - boundaries.left)
+  const rightRoom = Math.abs(left - boundaries.right)
+  let dropdownLeft: number | undefined = left
+  let dropdownRight: number | undefined = undefined
+  let dropdownTop: number | undefined = bottom
+  let dropdownBottom: number | undefined = undefined
+  let maxWidth = rightRoom
+  let maxHeight = bottomRoom
+
+  if (
+    isTopPosition ||
+    (isBottomPosition && bottomRoom < minHeight && topRoom > bottomRoom)
+  ) {
+    dropdownTop = undefined
+    dropdownBottom = top
+    maxHeight = topRoom
+  }
+
+  if (
+    isRightAligned ||
+    (isLeftAligned && maxWidth < minWidth && leftRoom > rightRoom)
+  ) {
+    dropdownLeft = undefined
+    dropdownRight = Math.abs(right - boundaries.right)
+    maxWidth = leftRoom
+  }
+
+  return {
+    position: "fixed",
+    top: dropdownTop,
+    bottom: dropdownBottom,
+    left: dropdownLeft,
+    right: dropdownRight,
+    maxWidth,
+    maxHeight,
+  }
 }
 
 function getBoundaries() {
