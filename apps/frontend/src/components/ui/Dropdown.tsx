@@ -1,7 +1,9 @@
 import {
   combine,
+  emitter,
   fromRef,
   Input,
+  IState,
   PropsWithChildren,
   ref,
   Ref,
@@ -9,6 +11,7 @@ import {
 } from "@jsxrx/core"
 import { fromRefEvent } from "@jsxrx/core/dom"
 import {
+  combineLatest,
   debounceTime,
   distinctUntilChanged,
   filter,
@@ -30,6 +33,7 @@ type DropdownContainerProps = PropsWithChildren<{
   minHeight?: number
   minWidth?: number
   className?: string
+  onClick?(e: Event, open$: IState<boolean>): void
 }>
 
 export default function DropdownContainer(
@@ -44,6 +48,7 @@ export default function DropdownContainer(
     position,
     minHeight,
     minWidth,
+    onClick,
   } = input$.take({
     trigger: "click",
     position: "bottom-left",
@@ -53,11 +58,21 @@ export default function DropdownContainer(
 
   const dropdownRef = ref(HTMLDivElement)
   const open$ = state(false)
+  const onClickEmitter = emitter(onClick)
 
   input$.observe(
     fromRefEvent(triggerRef, trigger).subscribe(() => {
       open$.set(!open$.value)
     }),
+  )
+
+  input$.observe(
+    combineLatest({
+      open: open$,
+      ref: fromRef(triggerRef),
+    })
+      .pipe(filter(({ open, ref }) => open && !ref))
+      .subscribe(() => open$.set(false)),
   )
 
   const boundaries$ = fromRefEvent(window, "resize", open$).pipe(
@@ -91,16 +106,23 @@ export default function DropdownContainer(
           }),
         ),
         filter(
-          ({ event, dropdownRef, triggerRef }) =>
-            dropdownRef !== null &&
-            event.target !== null &&
-            event.target !== dropdownRef &&
-            !dropdownRef.contains(event.target as Node) &&
-            event.target !== triggerRef &&
-            !triggerRef?.contains(event.target as Node),
+          ({ dropdownRef, triggerRef }) =>
+            dropdownRef !== null && triggerRef !== null,
         ),
       )
-      .subscribe(() => open$.set(false)),
+      .subscribe(({ event, dropdownRef, triggerRef }) => {
+        if (event.target === null) return open$.set(false)
+        if (!dropdownRef || !triggerRef) return open$.set(false)
+        if (
+          !dropdownRef.contains(event.target as Node) &&
+          !triggerRef.contains(event.target as Node)
+        )
+          return open$.set(false)
+        if (dropdownRef.contains(event.target as Node))
+          return onClickEmitter.emit(event, open$)
+        if (event.target !== dropdownRef && event.target !== triggerRef)
+          return open$.set(false)
+      }),
   )
 
   const dropdownStyle$ = combine({

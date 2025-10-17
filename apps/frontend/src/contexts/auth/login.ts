@@ -1,7 +1,7 @@
 import { authUserInfoEndpoint } from "@/api/auth/info.js"
 import { asyncValue, Context, IContextMap, pending, state } from "@jsxrx/core"
+import { shallowEqual } from "@jsxrx/utils"
 import { distinctUntilChanged, map, shareReplay } from "rxjs"
-import { shallowEqual } from "../../../../../submodules/jsxrx/packages/utils/object.js"
 
 export interface AuthLoginState {
   isLoggedIn: boolean
@@ -37,7 +37,7 @@ export function provideAuthContext(context: IContextMap) {
         reload: reloadUserInfo,
       })),
       distinctUntilChanged(shallowEqual),
-      shareReplay(),
+      shareReplay({ refCount: true, bufferSize: 1 }),
     ),
   )
 

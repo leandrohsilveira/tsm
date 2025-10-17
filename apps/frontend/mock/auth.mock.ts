@@ -70,4 +70,14 @@ export default defineMock([
       return
     },
   },
+  {
+    url: "/api/auth/logout",
+    method: "POST",
+    delay: [250, 600],
+    response(_, res) {
+      res.setCookie("Authorization")
+      res.statusCode = 200
+      res.end(null)
+    },
+  },
 ])
