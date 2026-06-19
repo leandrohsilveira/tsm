@@ -1,8 +1,8 @@
-import { Input } from "@jsxrx/core"
-import { map, Observable } from "rxjs"
+import { emitter, Props } from "@jsxrx/core"
+import { lastValueFrom, Observable, take } from "rxjs"
 import Button from "../ui/Button.js"
 import FormField from "../ui/FormField.js"
-import { ResolvedProps } from "@jsxrx/router"
+import { ResolvedProps, RouteResolverInput } from "@jsxrx/router"
 import { loginEndpoint } from "@/api/auth/login.js"
 
 type LoginProps = {
@@ -10,7 +10,10 @@ type LoginProps = {
   onSubmit(formData: FormData): void
 }
 
-export function LoginResolver(): ResolvedProps<LoginProps> {
+export function LoginResolver({
+  navigate,
+  url$,
+}: RouteResolverInput): ResolvedProps<LoginProps> {
   const loginAction = loginEndpoint.action()
 
   return {
@@ -20,26 +23,30 @@ export function LoginResolver(): ResolvedProps<LoginProps> {
         username: formData.get("username") as string,
         password: formData.get("password") as string,
       })
+      const url = await lastValueFrom(url$.pipe(take(1)))
+      navigate(url.searchParams.get("next") || "/")
     },
   }
 }
 
-export default function Login($: Observable<LoginProps>) {
-  const input$ = Input.from($)
+export default function Login(input$: Observable<LoginProps>) {
+  const { isSubmitting, onSubmit } = Props.take(input$, { isSubmitting: false })
 
-  const { isSubmitting, onSubmit } = input$.take({ isSubmitting: false })
+  const onSubmit$ = emitter(onSubmit)
+
+  function handleSubmit(e: JsxRx.FormEvent<HTMLFormElement>) {
+    e.preventDefault()
+
+    const formData = new FormData(e.target as HTMLFormElement)
+
+    onSubmit$.emit(formData)
+  }
 
   return (
     <main className="h-svh w-full flex items-center justify-center">
       <form
         className="flex flex-col w-full items-center max-w-96 p-2 gap-4"
-        onSubmit={onSubmit.pipe(
-          map(handleSubmit => e => {
-            e.preventDefault()
-            const formData = new FormData(e.target as HTMLFormElement)
-            handleSubmit(formData)
-          }),
-        )}
+        onSubmit={handleSubmit}
       >
         <h1 className="text-accent-700">Login</h1>
         <FormField for="username" label="E-mail">

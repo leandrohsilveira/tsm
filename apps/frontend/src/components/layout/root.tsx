@@ -1,17 +1,13 @@
 import { UserData } from "@/interfaces/user/user.js"
-import {
-  asyncValue,
-  Input,
-  PropsWithChildren,
-  ref,
-  Suspense,
-} from "@jsxrx/core"
-import { map, Observable, of } from "rxjs"
+import { Props, PropsWithChildren, ref, Suspense } from "@jsxrx/core"
+import { lastValueFrom, map, Observable, take } from "rxjs"
 import DropdownContainer from "../ui/Dropdown.js"
 import List from "../ui/list/List.js"
 import ListItem from "../ui/list/ListItem.js"
 import Skeleton from "../ui/Skeleton.js"
-import { authUserInfoEndpoint } from "@/api/auth/info.js"
+import { ResolvedProps, RouteResolverInput } from "@jsxrx/router"
+import { authLogoutEndpoint } from "@/api/auth/logout.js"
+import { provideAuthContext } from "@/contexts/auth/login.js"
 
 type RootLayoutProps = PropsWithChildren<{
   user: UserData | null
@@ -19,19 +15,33 @@ type RootLayoutProps = PropsWithChildren<{
   onLogout?(): void
 }>
 
-export function RootLayoutResolver() {
+export function RootLayoutResolver({
+  url$,
+  context,
+  navigate,
+}: RouteResolverInput): ResolvedProps<RootLayoutProps> {
+  const { state$, reloadUserInfo } = provideAuthContext(context)
+  const logoutAction = authLogoutEndpoint.action()
   return {
-    user: authUserInfoEndpoint.fetch(of(null)).pipe(
-      asyncValue,
-      map(data => data?.user ?? null),
-    ),
+    user: state$.pipe(map(data => data?.user ?? null)),
+    async onLogin() {
+      const url = await lastValueFrom(url$.pipe(take(1)))
+      navigate("/login", {
+        query: {
+          next: url.pathname,
+        },
+      })
+    },
+    async onLogout() {
+      await logoutAction.perform(null)
+      reloadUserInfo()
+      navigate("/")
+    },
   }
 }
 
-export default function RootLayout($: Observable<RootLayoutProps>) {
-  const input$ = Input.from($)
-
-  const { children, user: userInfo$, onLogin, onLogout } = input$.take()
+export default function RootLayout(input$: Observable<RootLayoutProps>) {
+  const { children, user: userInfo$, onLogin, onLogout } = Props.take(input$)
 
   const displayName$ = userInfo$.pipe(map(displayName))
 

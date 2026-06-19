@@ -2,8 +2,9 @@ import {
   combine,
   emitter,
   fromRef,
-  Input,
   IState,
+  Lifecycle,
+  Props,
   PropsWithChildren,
   ref,
   Ref,
@@ -37,9 +38,9 @@ type DropdownContainerProps = PropsWithChildren<{
 }>
 
 export default function DropdownContainer(
-  $: Observable<DropdownContainerProps>,
+  input$: Observable<DropdownContainerProps>,
+  { subscription }: Lifecycle,
 ) {
-  const input$ = Input.from($)
   const {
     children,
     className,
@@ -49,7 +50,7 @@ export default function DropdownContainer(
     minHeight,
     minWidth,
     onClick,
-  } = input$.take({
+  } = Props.take(input$, {
     trigger: "click",
     position: "bottom-left",
     minHeight: 200,
@@ -60,13 +61,13 @@ export default function DropdownContainer(
   const open$ = state(false)
   const onClickEmitter = emitter(onClick)
 
-  input$.observe(
+  subscription.add(
     fromRefEvent(triggerRef, trigger).subscribe(() => {
       open$.set(!open$.value)
     }),
   )
 
-  input$.observe(
+  subscription.add(
     combineLatest({
       open: open$,
       ref: fromRef(triggerRef),
@@ -93,7 +94,7 @@ export default function DropdownContainer(
     startWith(window.scrollY),
   )
 
-  input$.observe(
+  subscription.add(
     fromRefEvent(window, "click", open$)
       .pipe(
         withLatestFrom(

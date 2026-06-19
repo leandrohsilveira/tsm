@@ -4,13 +4,13 @@ import Login, { LoginResolver } from "./components/auth/Login.js"
 import Home from "./components/home/Home.js"
 
 export const routes = defineRoutes({
-  "/login": route(Login, {
+  "/login": route("login", Login, {
     resolve: LoginResolver,
   }),
-  index: route(RootLayout, {
+  index: route("root-layout", RootLayout, {
     resolve: RootLayoutResolver,
     children: {
-      index: route(Home),
+      index: route("home", Home),
     },
   }),
 })
