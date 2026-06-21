@@ -42,14 +42,14 @@ export default function DropdownContainer(
   { subscription }: Lifecycle,
 ) {
   const {
-    children,
-    className,
-    trigger,
-    triggerRef,
-    position,
-    minHeight,
-    minWidth,
-    onClick,
+    children$,
+    className$,
+    trigger$,
+    triggerRef$,
+    position$,
+    minHeight$,
+    minWidth$,
+    onClick$,
   } = Props.take(input$, {
     trigger: "click",
     position: "bottom-left",
@@ -57,12 +57,12 @@ export default function DropdownContainer(
     minWidth: 250,
   })
 
-  const dropdownRef = ref(HTMLDivElement)
+  const dropdownRef$ = ref(HTMLDivElement)
   const open$ = state(false)
-  const onClickEmitter = emitter(onClick)
+  const onClickEmitter = emitter(onClick$)
 
   subscription.add(
-    fromRefEvent(triggerRef, trigger).subscribe(() => {
+    fromRefEvent(triggerRef$, trigger$).subscribe(() => {
       open$.set(!open$.value)
     }),
   )
@@ -70,7 +70,7 @@ export default function DropdownContainer(
   subscription.add(
     combineLatest({
       open: open$,
-      ref: fromRef(triggerRef),
+      ref: fromRef(triggerRef$),
     })
       .pipe(filter(({ open, ref }) => open && !ref))
       .subscribe(() => open$.set(false)),
@@ -98,8 +98,8 @@ export default function DropdownContainer(
     fromRefEvent(window, "click", open$)
       .pipe(
         withLatestFrom(
-          fromRef(dropdownRef),
-          fromRef(triggerRef),
+          fromRef(dropdownRef$),
+          fromRef(triggerRef$),
           (event, dropdownRef, triggerRef) => ({
             dropdownRef,
             triggerRef,
@@ -127,11 +127,11 @@ export default function DropdownContainer(
   )
 
   const dropdownStyle$ = combine({
-    position,
-    ref: fromRef(triggerRef),
+    position: position$,
+    ref: fromRef(triggerRef$),
     boundaries: boundaries$,
-    minHeight,
-    minWidth,
+    minHeight: minHeight$,
+    minWidth: minWidth$,
     scrollTop: scrollTop$,
   }).pipe(map(getDropdownContainerStyles))
 
@@ -140,12 +140,12 @@ export default function DropdownContainer(
       if (!open) return null
       return (
         <div
-          className={className}
+          className={className$}
           role="listbox"
-          ref={dropdownRef}
+          ref={dropdownRef$}
           style={dropdownStyle$}
         >
-          {children}
+          {children$}
         </div>
       )
     }),

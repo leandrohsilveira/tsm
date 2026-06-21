@@ -8,7 +8,9 @@ type ListItemProps = WithChildren &
   }
 
 export default function ListItem($: Observable<ListItemProps>) {
-  const { className, children } = Props.take($)
+  const { className$, children$ } = Props.take($)
 
-  return <li className={tw("flex flex-1 [&>*]:p-4", className)}>{children}</li>
+  return (
+    <li className={tw("flex flex-1 [&>*]:p-4", className$)}>{children$}</li>
+  )
 }

@@ -30,16 +30,18 @@ export function LoginResolver({
 }
 
 export default function Login(input$: Observable<LoginProps>) {
-  const { isSubmitting, onSubmit } = Props.take(input$, { isSubmitting: false })
+  const { isSubmitting$, onSubmit$ } = Props.take(input$, {
+    isSubmitting: false,
+  })
 
-  const onSubmit$ = emitter(onSubmit)
+  const submitEmitter = emitter(onSubmit$)
 
   function handleSubmit(e: JsxRx.FormEvent<HTMLFormElement>) {
     e.preventDefault()
 
     const formData = new FormData(e.target as HTMLFormElement)
 
-    onSubmit$.emit(formData)
+    submitEmitter.emit(formData)
   }
 
   return (
@@ -71,7 +73,7 @@ export default function Login(input$: Observable<LoginProps>) {
           type="submit"
           color="accent"
           className="w-full"
-          disabled={isSubmitting}
+          disabled={isSubmitting$}
         >
           Sign in
         </Button>

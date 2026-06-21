@@ -1,9 +1,11 @@
 import { authUserInfoEndpoint } from "@/api/auth/info.js"
+import { UserData } from "@/interfaces/user/user.js"
 import { asyncValue, Context, IContextMap, pending, state } from "@jsxrx/core"
 import { shallowComparator } from "@jsxrx/utils"
 import { distinctUntilChanged, map, shareReplay } from "rxjs"
 
 export interface AuthLoginState {
+  user: UserData | null
   isLoggedIn: boolean
   reload(): void
 }
@@ -11,6 +13,7 @@ export interface AuthLoginState {
 export const AuthLoginContext = new Context<AuthLoginState>(
   "AuthLoginContext",
   {
+    user: null,
     isLoggedIn: false,
     reload() {},
   },
@@ -33,6 +36,7 @@ export function provideAuthContext(context: IContextMap) {
     authState$.pipe(
       asyncValue,
       map(info => ({
+        user: info?.user ?? null,
         isLoggedIn: info !== null,
         reload: reloadUserInfo,
       })),

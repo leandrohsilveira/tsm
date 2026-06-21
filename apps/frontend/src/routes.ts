@@ -1,7 +1,7 @@
 import { defineRoutes, route } from "@jsxrx/router"
 import RootLayout, { RootLayoutResolver } from "./components/layout/root.js"
 import Login, { LoginResolver } from "./components/auth/Login.js"
-import Home from "./components/home/Home.js"
+import Home, { HomeResolver } from "./components/home/Home.js"
 
 export const routes = defineRoutes({
   "/login": route("login", Login, {
@@ -10,7 +10,9 @@ export const routes = defineRoutes({
   index: route("root-layout", RootLayout, {
     resolve: RootLayoutResolver,
     children: {
-      index: route("home", Home),
+      index: route("home", Home, {
+        resolve: HomeResolver,
+      }),
     },
   }),
 })

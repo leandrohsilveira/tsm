@@ -9,14 +9,11 @@ type FormFieldProps = PropsWithChildren<{
 }>
 
 export default function FormField(input$: Observable<FormFieldProps>) {
-  const {
-    errors,
-    label,
-    for: htmlFor,
-    children,
-  } = Props.take(input$, { errors: [] as string[] })
+  const { errors$, label$, for$, children$ } = Props.take(input$, {
+    errors: [] as string[],
+  })
 
-  const errorLength$ = errors.pipe(map(errors => errors.length))
+  const errorLength$ = errors$.pipe(map(errors => errors.length))
   const hasErrors$ = errorLength$.pipe(map(len => len > 0))
 
   return (
@@ -29,8 +26,8 @@ export default function FormField(input$: Observable<FormFieldProps>) {
         },
       )}
     >
-      <label className="ml-0.5 font-bold" htmlFor={htmlFor}>
-        {label}
+      <label className="ml-0.5 font-bold" htmlFor={for$}>
+        {label$}
       </label>
       <div
         className={tw(
@@ -45,9 +42,9 @@ export default function FormField(input$: Observable<FormFieldProps>) {
           },
         )}
       >
-        {children}
+        {children$}
       </div>
-      {errors.pipe(
+      {errors$.pipe(
         map(errors =>
           errors.map(error => (
             <span key={error} className="ml-0.5">

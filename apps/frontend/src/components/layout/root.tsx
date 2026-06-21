@@ -41,9 +41,9 @@ export function RootLayoutResolver({
 }
 
 export default function RootLayout(input$: Observable<RootLayoutProps>) {
-  const { children, user: userInfo$, onLogin, onLogout } = Props.take(input$)
+  const { children$, user$, onLogin$, onLogout$ } = Props.take(input$)
 
-  const displayName$ = userInfo$.pipe(map(displayName))
+  const displayName$ = user$.pipe(map(displayName))
 
   const dropdownTriggerRef$ = ref(HTMLElement)
 
@@ -63,7 +63,7 @@ export default function RootLayout(input$: Observable<RootLayoutProps>) {
                   <button
                     className="p-2 cursor-pointer rounded-md hover:bg-primary-900 hover:text-primary-900-fg"
                     type="button"
-                    onClick={onLogin}
+                    onClick={onLogin$}
                   >
                     Login
                   </button>
@@ -81,7 +81,7 @@ export default function RootLayout(input$: Observable<RootLayoutProps>) {
           )}
         </Suspense>
       </header>
-      {children}
+      {children$}
       <DropdownContainer
         className="w-fit"
         triggerRef={dropdownTriggerRef$}
@@ -100,7 +100,7 @@ export default function RootLayout(input$: Observable<RootLayoutProps>) {
             <button
               className="w-full cursor-pointer hover:bg-neutral-300 hover:text-neutral-300-fg"
               type="button"
-              onClick={onLogout}
+              onClick={onLogout$}
             >
               Logout
             </button>
