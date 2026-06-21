@@ -3,7 +3,11 @@ import { User } from "@/interfaces/user/user.js"
 import { defineMock, MockRequest } from "vite-plugin-mock-dev-server"
 
 const users = [
-  createUser({ email: "admin@email.com", password: "123456" }),
+  createUser({
+    email: "admin@email.com",
+    firstName: "Admin",
+    password: "123456",
+  }),
   createUser({ email: "user@email.com", password: "123456" }),
   createUser({ email: "test@email.com", password: "123456" }),
 ]
