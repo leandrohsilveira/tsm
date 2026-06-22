@@ -20,7 +20,7 @@ export function RootLayoutResolver({
   context,
   navigate,
 }: RouteResolverInput): ResolvedProps<RootLayoutProps> {
-  const { state$, reloadUserInfo } = provideAuthContext(context)
+  const { state$, reloadUserInfo } = provideAuthContext(context, url$)
   const logoutAction = authLogoutEndpoint.action()
   return {
     user: state$.pipe(map(data => data?.user ?? null)),
@@ -51,11 +51,7 @@ export default function RootLayout(input$: Observable<RootLayoutProps>) {
     <>
       <header className="bg-primary-800 text-primary-800-fg px-6 py-4 flex items-center justify-between">
         <h1>TSM</h1>
-        <Suspense
-          fallback={
-            <Skeleton className="bg-primary-900 h-10 w-full max-w-60" />
-          }
-        >
+        <Suspense fallback={<Skeleton className="h-10 w-full max-w-60" />}>
           {displayName$.pipe(
             map(name => {
               if (!name)

@@ -10,7 +10,7 @@ export default function Skeleton($: Observable<SkeletonProps>) {
   return (
     <div
       className={tw(
-        "bg-neutral-100 animate-pulse rounded-xl h-full w-full",
+        "bg-foreground/15 animate-pulse rounded-xl h-full w-full",
         className$,
       )}
     />

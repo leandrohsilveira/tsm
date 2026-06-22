@@ -51,7 +51,7 @@ export default function Login(input$: Observable<LoginProps>) {
         onSubmit={handleSubmit}
       >
         <h1 className="text-accent-700">Login</h1>
-        <FormField for="username" label="E-mail">
+        <FormField for="username" label="E-mail" pending={isSubmitting$}>
           <input
             type="email"
             id="username"
@@ -60,7 +60,7 @@ export default function Login(input$: Observable<LoginProps>) {
             autoComplete="username"
           />
         </FormField>
-        <FormField for="password" label="Password">
+        <FormField for="password" label="Password" pending={isSubmitting$}>
           <input
             type="password"
             id="password"
@@ -73,7 +73,7 @@ export default function Login(input$: Observable<LoginProps>) {
           type="submit"
           color="accent"
           className="w-full"
-          disabled={isSubmitting$}
+          pending={isSubmitting$}
         >
           Sign in
         </Button>
