@@ -1,13 +1,15 @@
+import { authLogoutEndpoint } from "@/api/auth/logout.js"
+import { provideAuthContext } from "@/contexts/auth/login.js"
 import { UserData } from "@/interfaces/user/user.js"
 import { Props, PropsWithChildren, ref, Suspense } from "@jsxrx/core"
+import { ResolvedProps, RouteResolverInput } from "@jsxrx/router"
+import userIcon from "@tsm/icons/person-circle.svg?raw"
 import { lastValueFrom, map, Observable, take } from "rxjs"
 import DropdownContainer from "../ui/Dropdown.js"
 import List from "../ui/list/List.js"
 import ListItem from "../ui/list/ListItem.js"
 import Skeleton from "../ui/Skeleton.js"
-import { ResolvedProps, RouteResolverInput } from "@jsxrx/router"
-import { authLogoutEndpoint } from "@/api/auth/logout.js"
-import { provideAuthContext } from "@/contexts/auth/login.js"
+import Icon from "../ui/Icon.js"
 
 type RootLayoutProps = PropsWithChildren<{
   user: UserData | null
@@ -68,8 +70,13 @@ export default function RootLayout(input$: Observable<RootLayoutProps>) {
                 <button
                   ref={dropdownTriggerRef$}
                   type="button"
-                  className="p-2 cursor-pointer rounded-md hover:bg-primary-900 hover:text-primary-900-fg"
+                  className="p-2 flex flex-row gap-2 items-center cursor-pointer rounded-md hover:bg-primary-900 hover:text-primary-900-fg"
                 >
+                  <Icon
+                    id="user-menu-icon"
+                    className="h-6 w-6"
+                    content={userIcon}
+                  />
                   {name}
                 </button>
               )
