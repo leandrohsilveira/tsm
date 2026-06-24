@@ -1,9 +1,8 @@
 import { authLogoutEndpoint } from "@/api/auth/logout.js"
-import { provideAuthContext } from "@/contexts/auth/login.js"
+import { AuthLoginContext } from "@/contexts/auth/login.js"
 import { UserData } from "@/interfaces/user/user.js"
 import { Props, PropsWithChildren, ref, Suspense } from "@jsxrx/core"
 import { ResolvedProps, RouteResolverInput } from "@jsxrx/router"
-import userIcon from "@tsm/icons/person-circle.svg?raw"
 import { lastValueFrom, map, Observable, take } from "rxjs"
 import DropdownContainer from "../ui/Dropdown.js"
 import List from "../ui/list/List.js"
@@ -11,21 +10,22 @@ import ListItem from "../ui/list/ListItem.js"
 import Skeleton from "../ui/Skeleton.js"
 import Icon from "../ui/Icon.js"
 
-type RootLayoutProps = PropsWithChildren<{
+type FullLayoutProps = PropsWithChildren<{
   user: UserData | null
   onLogin?(): void
   onLogout?(): void
 }>
 
-export function RootLayoutResolver({
+export function FullLayoutResolver({
   url$,
   context,
   navigate,
-}: RouteResolverInput): ResolvedProps<RootLayoutProps> {
-  const { state$, reloadUserInfo } = provideAuthContext(context, url$)
+  refresh,
+}: RouteResolverInput): ResolvedProps<FullLayoutProps> {
+  const authContext$ = context.require(AuthLoginContext)
   const logoutAction = authLogoutEndpoint.action()
   return {
-    user: state$.pipe(map(data => data?.user ?? null)),
+    user: authContext$.pipe(map(data => data?.user ?? null)),
     async onLogin() {
       const url = await lastValueFrom(url$.pipe(take(1)))
       navigate("/login", {
@@ -36,13 +36,13 @@ export function RootLayoutResolver({
     },
     async onLogout() {
       await logoutAction.perform(null)
-      reloadUserInfo()
       navigate("/")
+      refresh()
     },
   }
 }
 
-export default function RootLayout(input$: Observable<RootLayoutProps>) {
+export default function FullLayout(input$: Observable<FullLayoutProps>) {
   const { children$, user$, onLogin$, onLogout$ } = Props.take(input$)
 
   const displayName$ = user$.pipe(map(displayName))
@@ -75,7 +75,7 @@ export default function RootLayout(input$: Observable<RootLayoutProps>) {
                   <Icon
                     id="user-menu-icon"
                     className="h-6 w-6"
-                    content={userIcon}
+                    content={import("@tsm/icons/person-circle.svg?raw")}
                   />
                   {name}
                 </button>

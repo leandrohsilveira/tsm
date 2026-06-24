@@ -1,17 +1,44 @@
-import { defineRoutes, route } from "@jsxrx/router"
-import RootLayout, { RootLayoutResolver } from "./components/layout/root.js"
-import Login, { LoginResolver } from "./components/auth/Login.js"
-import Home, { HomeResolver } from "./components/home/Home.js"
+import { lazy } from "@jsxrx/core"
+import { defineRoutes, lazyResolver, route } from "@jsxrx/router"
+
+const RootLayout = lazy(() => import("./components/layout/RootLayout.js"))
+const RootLayoutResolver = lazyResolver(
+  () => import("./components/layout/RootLayout.js"),
+  "RootLayoutResolver",
+)
+
+const FullLayout = lazy(() => import("./components/layout/FullLayout.js"))
+const FullLayoutResolver = lazyResolver(
+  () => import("./components/layout/FullLayout.js"),
+  "FullLayoutResolver",
+)
+
+const Login = lazy(() => import("./components/auth/Login.js"))
+const LoginResolver = lazyResolver(
+  () => import("./components/auth/Login.js"),
+  "LoginResolver",
+)
+
+const Home = lazy(() => import("./components/home/Home.js"))
+const HomeResolver = lazyResolver(
+  () => import("./components/home/Home.js"),
+  "HomeResolver",
+)
 
 export const routes = defineRoutes({
-  "/login": route("login", Login, {
-    resolve: LoginResolver,
-  }),
-  index: route("root-layout", RootLayout, {
+  index: route("root", RootLayout, {
     resolve: RootLayoutResolver,
     children: {
-      index: route("home", Home, {
-        resolve: HomeResolver,
+      "/login": route("login", Login, {
+        resolve: LoginResolver,
+      }),
+      index: route("root-layout", FullLayout, {
+        resolve: FullLayoutResolver,
+        children: {
+          index: route("home", Home, {
+            resolve: HomeResolver,
+          }),
+        },
       }),
     },
   }),
