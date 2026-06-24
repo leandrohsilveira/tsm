@@ -32,6 +32,7 @@ export function provideAuthContext(
 
   const state$ = authUserInfoEndpoint.fetch(
     combineLatest([authUserInfoInput$, url$]).pipe(
+      debounceTime(1),
       map(inp => inp as unknown as null),
     ),
   )
