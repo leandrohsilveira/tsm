@@ -1,30 +1,13 @@
 import { AuthUserInfo } from "@/interfaces/auth/info.js"
-import { User } from "@/interfaces/user/user.js"
 import { defineMock, MockRequest } from "vite-plugin-mock-dev-server"
-
-const users = [
-  createUser({
-    email: "admin@email.com",
-    firstName: "Admin",
-    password: "123456",
-  }),
-  createUser({ email: "user@email.com", password: "123456" }),
-  createUser({ email: "test@email.com", password: "123456" }),
-]
-
-function createUser(data: Omit<User, "id">): User {
-  return {
-    id: crypto.randomUUID(),
-    ...data,
-  }
-}
+import usersData from "./auth.data.js"
 
 export function getUserFromToken(req: MockRequest) {
   const authotization = req.getCookie("Authorization")
   if (!authotization || !authotization.toLowerCase().startsWith("userid "))
     return null
   const id = authotization.replace(/^UserId /i, "")
-  return users.find(user => user.id === id)
+  return usersData.users.value.find(user => user.id === id)
 }
 
 export default defineMock([
@@ -34,7 +17,7 @@ export default defineMock([
     delay: [100, 2000],
     response(req, res) {
       const { username, password } = req.body
-      const user = users.find(
+      const user = usersData.users.value.find(
         u => u.email === username && u.password === password,
       )
       if (!user) {

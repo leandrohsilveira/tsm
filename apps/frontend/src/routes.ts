@@ -25,6 +25,12 @@ const HomeResolver = lazyResolver(
   "HomeResolver",
 )
 
+const EntryList = lazy(() => import("./components/entry/EntryList.js"))
+const EntryListResolver = lazyResolver(
+  () => import("./components/entry/EntryList.js"),
+  "EntryListResolver",
+)
+
 export const routes = defineRoutes({
   index: route("root", RootLayout, {
     resolve: RootLayoutResolver,
@@ -35,6 +41,9 @@ export const routes = defineRoutes({
       index: route("root-layout", FullLayout, {
         resolve: FullLayoutResolver,
         children: {
+          "/entries": route("entries", EntryList, {
+            resolve: EntryListResolver,
+          }),
           index: route("home", Home, {
             resolve: HomeResolver,
           }),
